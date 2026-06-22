@@ -1,0 +1,49 @@
+import { a, defineData, type ClientSchema } from '@aws-amplify/backend';
+
+const schema = a.schema({
+  // ===== DRIVER MODEL =====
+  Driver: a.model({
+    name: a.string().required(),
+    email: a.string().required(),
+    company: a.string(),
+    busNumber: a.string(),
+    phoneNumber: a.string(),
+    rating: a.float(),
+    status: a.enum(['PENDING', 'APPROVED', 'REJECTED']),
+    qrCode: a.string(),
+    profilePhoto: a.string(),
+    bio: a.string(),
+    yearsExperience: a.integer(),
+    wishlist: a.json(),
+  })
+  .authorization(allow => [
+    allow.publicApiKey().to(['read']),
+    allow.authenticated().to(['create', 'update', 'delete'])
+  ]),
+
+  // ===== THANK YOU MODEL =====
+  ThankYou: a.model({
+    driverID: a.id().required(),
+    driverName: a.string().required(),
+    message: a.string(),
+    points: a.integer().required(),
+    senderName: a.string(),
+    anonymous: a.boolean().required(),
+  })
+  .authorization(allow => [
+    allow.publicApiKey().to(['create']),
+    allow.authenticated().to(['read'])
+  ]),
+});
+
+export type Schema = ClientSchema<typeof schema>;
+
+export const data = defineData({
+  schema,
+  authorizationModes: {
+    defaultAuthorizationMode: 'apiKey',
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
+  },
+});
