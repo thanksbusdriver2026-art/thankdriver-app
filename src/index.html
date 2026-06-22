@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>🚌 Thank You Driver · Full Features</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- QRCode.js for generating QR codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  
+  <!-- ===== MANIFEST for PWA ===== -->
+  <link rel="manifest" href='data:application/json,{"name":"Thank Driver","short_name":"ThankDriver","description":"Thank your school bus driver","start_url":"/","display":"standalone","background_color":"#f8f3e9","theme_color":"#f5c518","orientation":"portrait","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23f5c518%22/%3E%3Ctext x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2250%22 fill=%22%232d2a24%22%3E🚌%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* ===== DARK MODE ===== */
+    body {
+      background: #f8f3e9;
+      color: #1f1c16;
+      padding: 0 0 2.5rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .card {
+      background: #2d2a24;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .card-title {
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .input-group input,
+    body.dark-mode .input-group textarea,
+    body.dark-mode .input-group select {
+      background: #1f1c16;
+      border-color: #4d453c;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .input-group label {
+      color: #d0c8b8;
+    }
+
+    body.dark-mode .badge-yellow {
+      background: var(--bus-yellow);
+      color: var(--charcoal);
+    }
+
+    body.dark-mode .qr-mock {
+      background: #3d3730;
+    }
+
+    body.dark-mode .qr-mock .qr-box {
+      background: #2d2a24;
+      border-color: var(--bus-yellow);
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .driver-preview {
+      background: linear-gradient(145deg, #2d2a24, #3d3730);
+      border-left-color: var(--bus-yellow);
+    }
+
+    body.dark-mode .driver-preview .wishlist-item {
+      background: #3d3730;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .driver-preview .sender-section {
+      background: #3d3730;
+    }
+
+    body.dark-mode .footer-links span {
+      color: #8a8070;
+    }
+
+    body.dark-mode .section-divider {
+      border-color: #4d453c;
+      color: #8a8070;
+    }
+
+    body.dark-mode .toggle-container input[type="checkbox"] {
+      background: #4d453c;
+    }
+
+    body.dark-mode .toggle-container input[type="checkbox"]:checked {
+      background: var(--bus-yellow);
+    }
+
+    body.dark-mode .login-tab {
+      border-color: #4d453c;
+      color: #8a8070;
+    }
+
+    body.dark-mode .login-tab.active {
+      border-color: var(--bus-yellow);
+      background: var(--bus-yellow);
+      color: var(--charcoal);
+    }
+
+    body.dark-mode .tap-hint {
+      background: rgba(245, 197, 24, 0.15);
+      border-color: rgba(245, 197, 24, 0.30);
+      color: #b0a898;
+    }
+
+    body.dark-mode .admin-panel {
+      background: #1f1c16;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .admin-summary-item {
+      background: #2d2a24;
+    }
+
+    body.dark-mode .admin-driver-row {
+      background: #2d2a24;
+    }
+
+    body.dark-mode .admin-driver-row:hover {
+      background: #3d3730;
+    }
+
+    body.dark-mode .driver-detail {
+      background: #2d2a24;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .settings-section {
+      background: #2d2a24;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .settings-section .input-group input,
+    body.dark-mode .settings-section .input-group textarea {
+      background: #1f1c16;
+      border-color: #4d453c;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .settings-section .wishlist-item {
+      background: #1f1c16;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .settings-section .wishlist-item .item-name {
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .settings-section .wishlist-add {
+      background: #1f1c16;
+      border-color: #4d453c;
+    }
+
+    body.dark-mode .settings-section .wishlist-add .input-group input {
+      background: #0d0a04;
+      border-color: #4d453c;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .settings-section .password-toggle {
+      color: #8a8070;
+    }
+
+    body.dark-mode .settings-section .password-toggle:hover {
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .qr-image-container {
+      background: #2d2a24;
+      border-color: var(--bus-yellow);
+    }
+
+    body.dark-mode .home-qr-container {
+      background: #2d2a24;
+      border-color: var(--bus-yellow);
+    }
+
+    body.dark-mode .consent a {
+      color: var(--bus-yellow);
+    }
+
+    body.dark-mode .btn-outline {
+      border-color: var(--bus-yellow);
+      color: var(--bus-yellow);
+    }
+
+    body.dark-mode .btn-outline:hover {
+      background: rgba(245, 197, 24, 0.15);
+    }
+
+    body.dark-mode .btn-admin {
+      background: #3d3730;
+      border-color: #4d453c;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode .btn-admin:hover {
+      background: #4d453c;
+    }
+
+    body.dark-mode #qrScannerModal .modal-content {
+      background: #2d2a24;
+    }
+
+    body.dark-mode #queueModal .modal-content {
+      background: #2d2a24;
+      color: #e8e0d8;
+    }
+
+    body.dark-mode #queueModal .queue-item {
+      border-color: #4d453c;
+    }
+
+    body.dark-mode #queueModal .queue-item .item-name {
+      color: #e8e0d8;
+    }
+
+    /* ===== DARK MODE TOGGLE ===== */
+    .dark-mode-toggle {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: var(--charcoal);
+      padding: 4px 8px;
+      border-radius: 40px;
+      transition: all 0.2s;
+      opacity: 0.7;
+    }
+    .dark-mode-toggle:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    body.dark-mode .dark-mode-toggle {
+      color: #e8e0d8;
+    }
+
+    /* ===== LANGUAGE TOGGLE ===== */
+    .lang-toggle {
+      background: none;
+      border: 1px solid #ddd2be;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--charcoal);
+      transition: all 0.2s;
+      opacity: 0.7;
+    }
+    .lang-toggle:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    body.dark-mode .lang-toggle {
+      border-color: #4d453c;
+      color: #e8e0d8;
+    }
+    .lang-toggle.active {
+      border-color: var(--bus-yellow);
+      background: var(--bus-yellow);
+      color: var(--charcoal);
+    }
+
+    :root {
+      --bus-yellow: #f5c518;
+      --bus-yellow-light: #ffe066;
+      --bus-yellow-dark: #d9a50b;
+      --charcoal: #2d2a24;
+      --cream: #fef9e8;
+      --white: #ffffff;
+      --shadow: 0 8px 30px rgba(0,0,0,0.07);
+      --shadow-hover: 0 12px 40px rgba(0,0,0,0.10);
+      --radius-card: 24px;
+      --radius-pill: 60px;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --blue: #3b82f6;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: default;
+      transition: transform 0.1s;
+      position: relative;
+    }
+
+    .logo-icon {
+      background: var(--bus-yellow);
+      color: var(--charcoal);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 6px 20px rgba(245, 197, 24, 0.35);
+      transition: box-shadow 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon .bus-animation {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      animation: busDrive 3s ease-in-out infinite;
+    }
+
+    @keyframes busDrive {
+      0% { transform: translateX(-6px) rotate(-2deg); }
+      50% { transform: translateX(6px) rotate(2deg); }
+      100% { transform: translateX(-6px) rotate(-2deg); }
+    }
+
+    .logo-icon .bus-shadow {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 4px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 50%;
+      animation: shadowPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes shadowPulse {
+      0% { transform: translateX(-50%) scale(0.8); opacity: 0.5; }
+      50% { transform: translateX(-50%) scale(1.2); opacity: 0.8; }
+      100% { transform: translateX(-50%) scale(0.8); opacity: 0.5; }
+    }
+
+    .logo-icon:hover {
+      box-shadow: 0 8px 30px rgba(245, 197, 24, 0.50);
+      transform: scale(1.05);
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.7rem;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    .brand span {
+      color: var(--bus-yellow-dark);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 24px 20px;
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(238, 230, 214, 0.6);
+      transition: box-shadow 0.2s, transform 0.15s, background 0.3s, border-color 0.3s;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--charcoal);
+      transition: color 0.3s;
+    }
+    .card-title i {
+      color: var(--bus-yellow-dark);
+      width: 1.8rem;
+      font-size: 1.2rem;
+    }
+
+    .badge-yellow {
+      background: var(--bus-yellow);
+      padding: 3px 16px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: var(--charcoal);
+    }
+
+    .qr-mock {
+      background: #f5efe2;
+      border-radius: 18px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      transition: background 0.3s;
+    }
+    .qr-mock .qr-box {
+      background: white;
+      padding: 6px 18px 6px 12px;
+      border-radius: 60px;
+      border: 2px dashed var(--bus-yellow);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      transition: background 0.3s, color 0.3s;
+    }
+    .qr-mock .qr-box i {
+      font-size: 2rem;
+      color: var(--charcoal);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bus-yellow);
+      border: none;
+      padding: 14px 24px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      color: var(--charcoal);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid #c9940a;
+      width: 100%;
+      box-shadow: 0 2px 8px rgba(245, 197, 24, 0.20);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(245, 197, 24, 0.30);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--bus-yellow);
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: rgba(245, 197, 24, 0.08);
+    }
+    .btn-sm {
+      padding: 10px 18px;
+      font-size: 0.8rem;
+      width: auto;
+    }
+    .btn-xs {
+      padding: 6px 12px;
+      font-size: 0.7rem;
+      border-radius: 40px;
+      width: auto;
+    }
+    .btn-admin {
+      background: #2d2a24;
+      border-color: #4d453c;
+      color: #f0e8d8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+    }
+    .btn-admin:hover {
+      background: #3d3730;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.30);
+    }
+    .btn-green {
+      background: var(--green);
+      border-color: #16a34a;
+      color: white;
+    }
+    .btn-green:hover {
+      background: #16a34a;
+    }
+    .btn-red {
+      background: var(--red);
+      border-color: #dc2626;
+      color: white;
+    }
+    .btn-red:hover {
+      background: #dc2626;
+    }
+    .btn-orange {
+      background: var(--orange);
+      border-color: #d97706;
+      color: white;
+    }
+    .btn-orange:hover {
+      background: #d97706;
+    }
+    .btn-blue {
+      background: var(--blue);
+      border-color: #2563eb;
+      color: white;
+    }
+    .btn-blue:hover {
+      background: #2563eb;
+    }
+    .btn-send {
+      background: var(--green);
+      border-color: #16a34a;
+      color: white;
+    }
+    .btn-send:hover {
+      background: #16a34a;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .input-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #3d3730;
+      transition: color 0.3s;
+    }
+    .input-group input, .input-group textarea, .input-group select {
+      padding: 14px 20px;
+      border-radius: 60px;
+      border: 1.5px solid #e0d6c4;
+      background: #fcf9f2;
+      font-size: 1rem;
+      width: 100%;
+      transition: border 0.15s, box-shadow 0.15s, background 0.3s, color 0.3s;
+    }
+    .input-group textarea {
+      border-radius: 20px;
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+      border-color: var(--bus-yellow);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.15);
+    }
+    .input-group input::placeholder, .input-group textarea::placeholder {
+      color: #b0a898;
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 50px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      cursor: pointer;
+      color: #7a6f60;
+      font-size: 1.1rem;
+      background: none;
+      border: none;
+      padding: 8px;
+      transition: color 0.15s;
+      z-index: 2;
+    }
+    .password-toggle:hover {
+      color: var(--charcoal);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-row .input-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .search-row .btn {
+      width: auto;
+      padding: 14px 24px;
+      flex-shrink: 0;
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .search-actions .btn {
+      flex: 1;
+      min-width: 80px;
+    }
+
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 18px 0 14px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .consent input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--bus-yellow);
+      margin-top: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .consent a {
+      color: var(--charcoal);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.3s;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 6px 0 12px;
+    }
+    .toggle-container label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle-container input[type="checkbox"] {
+      width: 44px;
+      height: 24px;
+      appearance: none;
+      background: #ddd2be;
+      border-radius: 40px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-container input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .toggle-container input[type="checkbox"]:checked {
+      background: var(--bus-yellow);
+    }
+    .toggle-container input[type="checkbox"]:checked::after {
+      transform: translateX(20px);
+    }
+    .toggle-container .toggle-label {
+      font-weight: 500;
+    }
+    .toggle-container .toggle-label .anonymous-text {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .driver-preview {
+      background: linear-gradient(145deg, #fcf7ec, #f8f0e0);
+      border-radius: 20px;
+      padding: 22px 20px;
+      border-left: 6px solid var(--bus-yellow);
+      margin: 12px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      transition: background 0.3s;
+    }
+
+    .driver-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .driver-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--bus-yellow-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: var(--charcoal);
+      border: 2px solid var(--bus-yellow);
+    }
+
+    .wishlist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f5efe2;
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border: 1px solid #e6dcc8;
+      transition: all 0.15s, background 0.3s, border-color 0.3s;
+    }
+    .wishlist-item:hover {
+      border-color: var(--bus-yellow);
+    }
+    .wishlist-item .item-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: #e6dcc8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .wishlist-item .item-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .wishlist-item .item-info {
+      flex: 1;
+    }
+    .wishlist-item .item-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .wishlist-item .item-points {
+      font-size: 0.8rem;
+      color: var(--bus-yellow-dark);
+      font-weight: 600;
+    }
+    .wishlist-item .item-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .wishlist-add {
+      background: #f5efe2;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 12px 0;
+      border: 2px dashed #ddd2be;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .wishlist-add .input-group {
+      margin-bottom: 8px;
+    }
+    .wishlist-add .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag-yellow {
+      background: var(--bus-yellow);
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .sender-section {
+      background: #f5efe2;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin: 10px 0 12px;
+      transition: background 0.3s;
+    }
+    .sender-section .input-group {
+      margin-bottom: 8px;
+    }
+    .sender-section .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .qr-image-container {
+      background: white;
+      border-radius: 20px;
+      padding: 14px 20px 14px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      border: 2px solid var(--bus-yellow);
+      margin: 14px 0 4px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 12px rgba(245, 197, 24, 0.12);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .qr-image-container #qrcode {
+      display: inline-block;
+      background: white;
+      padding: 4px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .qr-image-container #qrcode img {
+      display: block !important;
+      width: 96px;
+      height: 96px;
+      image-rendering: pixelated;
+      border-radius: 4px;
+    }
+
+    .home-qr-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: white;
+      padding: 8px 16px 8px 8px;
+      border-radius: 60px;
+      border: 2px solid var(--bus-yellow);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .home-qr-container #homeQR {
+      display: inline-block;
+      background: white;
+      padding: 4px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .home-qr-container #homeQR img {
+      display: block !important;
+      width: 60px;
+      height: 60px;
+      image-rendering: pixelated;
+    }
+
+    .admin-hidden {
+      display: none;
+    }
+    .admin-panel {
+      background: #2d2a24;
+      color: #f0e8d8;
+      border-radius: var(--radius-card);
+      padding: 24px 20px;
+      margin: 24px 0;
+      border: 1px solid #4d453c;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .admin-panel h3 {
+      color: var(--bus-yellow);
+      font-weight: 700;
+    }
+
+    .admin-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 16px 0 20px;
+    }
+    .admin-summary-item {
+      background: #3d3730;
+      padding: 12px 8px;
+      border-radius: 16px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .admin-summary-item .number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: block;
+    }
+    .admin-summary-item .label {
+      font-size: 0.6rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .admin-summary-item.total .number { color: var(--bus-yellow); }
+    .admin-summary-item.pending .number { color: var(--orange); }
+    .admin-summary-item.approved .number { color: var(--green); }
+    .admin-summary-item.rejected .number { color: var(--red); }
+
+    .admin-driver-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .admin-driver-row {
+      background: #3d3730;
+      padding: 12px 18px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.15s, background 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid transparent;
+    }
+    .admin-driver-row:hover {
+      background: #4f4840;
+      border-color: var(--bus-yellow);
+    }
+    .admin-driver-row .name {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-driver-row .name i {
+      color: var(--bus-yellow);
+    }
+    .admin-driver-row .status-badge {
+      font-size: 0.6rem;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-weight: 600;
+    }
+    .status-pending { background: var(--orange); color: white; }
+    .status-approved { background: var(--green); color: white; }
+    .status-rejected { background: var(--red); color: white; }
+
+    .driver-detail {
+      display: none;
+      background: #3d3730;
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin: 12px 0 16px;
+      border: 1px solid #4d453c;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .driver-detail.active {
+      display: block;
+    }
+    .driver-detail .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #4d453c;
+      font-size: 0.85rem;
+    }
+    .driver-detail .detail-row:last-child {
+      border-bottom: none;
+    }
+    .driver-detail .detail-label {
+      opacity: 0.7;
+    }
+    .driver-detail .detail-value {
+      font-weight: 500;
+      text-align: right;
+    }
+    .driver-detail .detail-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .driver-detail .detail-actions .btn {
+      flex: 1;
+      min-width: 70px;
+      padding: 8px 14px;
+      font-size: 0.7rem;
+      border-radius: 40px;
+    }
+    .wishlist-badge {
+      background: #f59e0b;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 40px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      display: inline-block;
+      margin: 2px 4px 2px 0;
+    }
+
+    .settings-section {
+      background: #3d3730;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 12px 0;
+      border: 1px solid #4d453c;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .settings-section .settings-title {
+      color: var(--bus-yellow);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .settings-section .input-group label {
+      color: #d0c8b8;
+    }
+    .settings-section .input-group input,
+    .settings-section .input-group textarea {
+      background: #2d2a24;
+      border-color: #4d453c;
+      color: #f0e8d8;
+    }
+    .settings-section .input-group input:focus,
+    .settings-section .input-group textarea:focus {
+      border-color: var(--bus-yellow);
+      box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.15);
+    }
+    .settings-section .password-toggle {
+      color: #a09888;
+    }
+    .settings-section .password-toggle:hover {
+      color: #f0e8d8;
+    }
+    .settings-section .wishlist-item {
+      background: #2d2a24;
+      border-color: #4d453c;
+    }
+    .settings-section .wishlist-item .item-name {
+      color: #f0e8d8;
+    }
+    .settings-section .wishlist-item .item-points {
+      color: var(--bus-yellow-light);
+    }
+    .settings-section .wishlist-add {
+      background: #2d2a24;
+      border-color: #4d453c;
+    }
+    .settings-section .wishlist-add .input-group label {
+      color: #d0c8b8;
+    }
+    .settings-section .wishlist-add .input-group input {
+      background: #1f1c16;
+      border-color: #4d453c;
+      color: #f0e8d8;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin: 32px 0 10px;
+      color: #6b6256;
+      font-size: 0.8rem;
+      flex-wrap: wrap;
+      transition: color 0.3s;
+    }
+    .footer-links span {
+      cursor: default;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .footer-links span:hover {
+      opacity: 1;
+    }
+
+    .section-divider {
+      border-top: 2px dashed #e6dcc8;
+      margin: 30px 0 12px;
+      padding-top: 10px;
+      font-weight: 500;
+      color: #4d453c;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .section-divider i {
+      color: var(--bus-yellow-dark);
+    }
+
+    .login-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .login-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 2px solid #e0d6c4;
+      background: transparent;
+      transition: all 0.15s, border-color 0.3s, color 0.3s;
+      color: #5d5346;
+    }
+    .login-tab.active {
+      border-color: var(--bus-yellow);
+      background: var(--bus-yellow);
+      color: var(--charcoal);
+    }
+    .login-tab:hover:not(.active) {
+      background: rgba(245, 197, 24, 0.08);
+    }
+    .login-panel {
+      display: none;
+    }
+    .login-panel.active {
+      display: block;
+    }
+
+    .badge-doc {
+      background: #6366f1;
+      color: white;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    /* ===== QR SCANNER MODAL ===== */
+    #qrScannerModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    #qrScannerModal.active {
+      display: flex;
+    }
+    #qrScannerModal .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 450px;
+      width: 95%;
+      position: relative;
+      transition: background 0.3s;
+    }
+    #qrScannerModal .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    #qrScannerModal .modal-header h2 {
+      font-size: 1.2rem;
+    }
+    #qrScannerModal .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+      padding: 4px 8px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    #qrScannerModal .close-btn:hover {
+      background: #f0f0f0;
+    }
+    #qr-reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    #qr-reader video {
+      border-radius: 16px;
+    }
+    .scanner-instructions {
+      text-align: center;
+      margin: 12px 0 0;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .scanner-instructions i {
+      color: var(--bus-yellow);
+    }
+    .scanner-status {
+      text-align: center;
+      margin: 10px 0 0;
+      font-size: 0.8rem;
+      color: #999;
+      min-height: 20px;
+    }
+
+    /* ===== QUEUE MODAL ===== */
+    #queueModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    #queueModal.active {
+      display: flex;
+    }
+    #queueModal .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 400px;
+      width: 95%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transition: background 0.3s;
+    }
+    #queueModal .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    #queueModal .modal-header h2 {
+      font-size: 1.2rem;
+    }
+    .queue-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .queue-item:last-child {
+      border-bottom: none;
+    }
+    .queue-item .item-name {
+      font-weight: 500;
+    }
+    .queue-item .item-status {
+      font-size: 0.8rem;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-weight: 600;
+    }
+    .status-pending-queue {
+      background: var(--orange);
+      color: white;
+    }
+    .status-synced {
+      background: var(--green);
+      color: white;
+    }
+    .status-failed {
+      background: var(--red);
+      color: white;
+    }
+    .queue-empty {
+      text-align: center;
+      padding: 20px 0;
+      color: #999;
+    }
+    .queue-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .queue-actions .btn {
+      flex: 1;
+    }
+
+    /* ===== OFFLINE BADGE ===== */
+    #offlineBadge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--orange);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 60px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 1500;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 0.9rem;
+    }
+    #offlineBadge:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    }
+    #offlineBadge .badge-icon {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    #offlineBadge .badge-count {
+      background: rgba(255,255,255,0.25);
+      padding: 2px 10px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 500;
+      z-index: 3000;
+      max-width: 90%;
+      text-align: center;
+      transition: opacity 0.3s, transform 0.3s;
+      opacity: 0;
+      pointer-events: none;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast .toast-icon {
+      margin-right: 8px;
+    }
+
+    /* ===== SEARCH RESULTS ===== */
+    .search-results-container {
+      margin-top: 12px;
+    }
+    .search-result-item {
+      background: #f5efe2;
+      padding: 14px 18px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s, background 0.3s, border-color 0.3s;
+      border: 2px solid transparent;
+    }
+    .search-result-item:hover {
+      border-color: var(--bus-yellow);
+      transform: translateX(4px);
+    }
+    .search-result-item .result-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .search-result-item .result-company {
+      font-size: 0.8rem;
+      color: #5d5346;
+    }
+    .search-result-item .result-rating {
+      float: right;
+      color: var(--bus-yellow-dark);
+    }
+    .search-no-results {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+      font-style: italic;
+    }
+    body.dark-mode .search-result-item {
+      background: #3d3730;
+    }
+    body.dark-mode .search-result-item .result-company {
+      color: #a09888;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 450px) {
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
+      .driver-row {
+        gap: 10px;
+      }
+      .qr-image-container {
+        padding: 12px;
+        gap: 12px;
+      }
+      .qr-image-container #qrcode img {
+        width: 80px;
+        height: 80px;
+      }
+      .brand {
+        font-size: 1.3rem;
+      }
+      .login-tabs {
+        flex-direction: column;
+        gap: 6px;
+      }
+      .home-qr-container #homeQR img {
+        width: 50px;
+        height: 50px;
+      }
+      .admin-summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .search-row {
+        flex-direction: column;
+      }
+      .search-row .btn {
+        width: 100%;
+      }
+      .search-actions .btn {
+        min-width: 60px;
+        font-size: 0.7rem;
+        padding: 8px 12px;
+      }
+      .driver-detail .detail-actions .btn {
+        min-width: 60px;
+        font-size: 0.65rem;
+        padding: 6px 10px;
+      }
+      .wishlist-item {
+        flex-wrap: wrap;
+      }
+      .wishlist-item .item-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .top-actions {
+        gap: 4px;
+      }
+      .lang-toggle {
+        font-size: 0.6rem;
+        padding: 3px 8px;
+      }
+      #offlineBadge {
+        bottom: 16px;
+        right: 16px;
+        padding: 10px 16px;
+        font-size: 0.8rem;
+      }
+      #qrScannerModal .modal-content {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="top-bar">
+    <div class="logo-area" id="logoArea">
+      <div class="logo-icon">
+        <div class="bus-animation"><i class="fas fa-school-bus"></i></div>
+        <div class="bus-shadow"></div>
+      </div>
+      <div class="brand">Thank<span>Driver</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="lang-toggle active" onclick="switchLanguage('en')" id="langEn">EN</button>
+      <button class="lang-toggle" onclick="switchLanguage('fr')" id="langFr">FR</button>
+      <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== HOME ===== -->
+  <div id="homeSection">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-bullhorn"></i> <span data-en="Company board" data-fr="Tableau d'affichage">Company board</span></div>
+      <div style="background: #f5eedd; padding: 16px 20px; border-radius: 20px; font-weight: 500; transition: background 0.3s;" id="companyMessageDisplay">
+        🚌 <span data-en="Thank you for driving our future! Every driver matters." data-fr="Merci de conduire notre avenir! Chaque conducteur compte.">Thank you for driving our future! Every driver matters.</span>
+      </div>
+      <div style="font-size:0.9rem; color:#5d5346; margin-top:12px; display:flex; align-items:center; gap:8px; transition: color 0.3s;">
+        <i class="fas fa-calendar-alt" style="color:var(--bus-yellow-dark);"></i> <span data-en="National School Bus Driver Day – Feb 22" data-fr="Journée nationale des conducteurs d'autobus scolaire – 22 fév">National School Bus Driver Day – Feb 22</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-qrcode"></i> <span data-en="Find us" data-fr="Trouvez-nous">Find us</span></div>
+      <div class="qr-mock">
+        <div class="home-qr-container">
+          <div id="homeQR"></div>
+          <div>
+            <div style="font-weight:600; font-size:0.9rem;"><span data-en="Scan to visit" data-fr="Scannez pour visiter">Scan to visit</span></div>
+            <div style="font-size:0.7rem; color:#5d5346;">thankdriver.com</div>
+            <span class="badge-yellow" style="display:inline-block; margin-top:2px;"><i class="fas fa-home"></i> <span data-en="Home page" data-fr="Page d'accueil">Home page</span></span>
+          </div>
+        </div>
+        <span class="badge-yellow"><i class="far fa-copy"></i> <span data-en="copy" data-fr="copier">copy</span></span>
+      </div>
+    </div>
+
+    <!-- ===== SEARCH with QR SCANNER BUTTON ===== -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-search"></i> <span data-en="Search driver" data-fr="Rechercher un conducteur">Search driver</span></div>
+      <div class="search-row">
+        <div class="input-group" style="margin-bottom:0;">
+          <input type="text" placeholder="Name or company..." id="searchInput" onkeypress="if(event.key==='Enter') searchDriver()">
+        </div>
+        <button class="btn" onclick="searchDriver()" style="width:auto; padding:14px 28px;">
+          <i class="fas fa-search"></i> <span data-en="Search" data-fr="Rechercher">Search</span>
+        </button>
+      </div>
+      <div class="search-actions">
+        <button class="btn btn-sm btn-outline" onclick="openQRScanner()" style="flex:1;">
+          <i class="fas fa-camera"></i> <span data-en="Scan QR" data-fr="Scanner QR">Scan QR</span>
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="uploadQR()" style="flex:1;">
+          <i class="fas fa-upload"></i> <span data-en="Upload QR" data-fr="Télécharger QR">Upload QR</span>
+        </button>
+        <button class="btn btn-sm" onclick="document.getElementById('registerSection').scrollIntoView({behavior:'smooth'})" style="flex:1;">
+          <i class="fas fa-user-plus"></i> <span data-en="Register" data-fr="S'inscrire">Register</span>
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('loginSection').scrollIntoView({behavior:'smooth'})" style="flex:1;">
+          <i class="fas fa-sign-in-alt"></i> <span data-en="Login" data-fr="Connexion">Login</span>
+        </button>
+      </div>
+      
+      <!-- ===== SEARCH RESULTS ===== -->
+      <div id="searchResults" class="search-results-container"></div>
+    </div>
+
+    <!-- ===== SELECTED DRIVER DISPLAY ===== -->
+    <div id="selectedDriverContainer"></div>
+  </div>
+
+  <!-- ===== REGISTRATION ===== -->
+  <div id="registerSection" class="card">
+    <div class="card-title"><i class="fas fa-clipboard-list"></i> <span data-en="Driver Register" data-fr="Inscription du conducteur">Driver Register</span></div>
+    <div class="input-group"><label><span data-en="Full name" data-fr="Nom complet">Full name</span></label><input placeholder="e.g. Maria Santos"></div>
+    <div class="input-group"><label><span data-en="Company" data-fr="Compagnie">Company</span></label><input placeholder="e.g. Durham School Services"></div>
+    <div class="input-group"><label><span data-en="Email" data-fr="Courriel">Email</span></label><input type="email" placeholder="driver@example.com"></div>
+    <div class="input-group"><label><i class="fas fa-id-badge"></i> <span data-en="Company badge/ID" data-fr="Badge/ID de la compagnie">Company badge/ID</span></label><input type="file" accept="image/*" style="padding:10px 16px;"></div>
+    <div class="input-group"><label><i class="fas fa-camera"></i> <span data-en="Selfie" data-fr="Selfie">Selfie</span></label><input type="file" accept="image/*" style="padding:10px 16px;"></div>
+    <div class="input-group">
+      <label><span data-en="Set password" data-fr="Définir le mot de passe">Set password</span> <i class="fas fa-eye password-toggle-icon" style="cursor:pointer; opacity:0.6; margin-left:auto;" onclick="togglePasswordVisibility(this)"></i></label>
+      <div class="password-wrapper">
+        <input type="password" id="registerPassword" placeholder="········">
+        <button type="button" class="password-toggle" onclick="togglePassword('registerPassword', this)">
+          <i class="fas fa-eye"></i>
+        </button>
+      </div>
+    </div>
+    <div class="consent">
+      <input type="checkbox" id="consentCheck">
+      <label for="consentCheck"><span data-en="I agree to" data-fr="J'accepte les">I agree to</span> <a href="#"><span data-en="Terms" data-fr="Conditions">Terms</span></a>, <a href="#"><span data-en="Privacy" data-fr="Confidentialité">Privacy</span></a> &amp; <a href="#"><span data-en="Refund" data-fr="Remboursement">Refund</span></a></label>
+    </div>
+    <button class="btn"><i class="fas fa-check-circle"></i> <span data-en="Register" data-fr="S'inscrire">Register</span></button>
+    <div style="margin-top:14px; background:#f5eedd; padding:10px; border-radius:60px; text-align:center; font-size:0.8rem; font-weight:500; transition: background 0.3s;">
+      <span data-en="Approval required → unique QR &amp; page" data-fr="Approbation requise → QR unique &amp; page">Approval required → unique QR &amp; page</span>
+    </div>
+  </div>
+
+  <!-- ===== LOGIN (Simple - Driver Only) ===== -->
+  <div id="loginSection" class="card">
+    <div class="card-title"><i class="fas fa-sign-in-alt"></i> <span data-en="Login" data-fr="Connexion">Login</span></div>
+
+    <div id="driverLogin" class="login-panel active">
+      <div class="input-group"><label><span data-en="Email" data-fr="Courriel">Email</span></label><input placeholder="driver@example.com"></div>
+      <div class="input-group">
+        <label><span data-en="Password" data-fr="Mot de passe">Password</span> <i class="fas fa-eye password-toggle-icon" style="cursor:pointer; opacity:0.6; margin-left:auto;" onclick="togglePasswordVisibility(this)"></i></label>
+        <div class="password-wrapper">
+          <input type="password" id="driverLoginPassword" placeholder="········">
+          <button type="button" class="password-toggle" onclick="togglePassword('driverLoginPassword', this)">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <button class="btn"><i class="fas fa-arrow-right"></i> <span data-en="Driver Login" data-fr="Connexion conducteur">Driver Login</span></button>
+      <div style="margin-top:10px; font-size:0.75rem; color:#7a6f60; text-align:center; transition: color 0.3s;">
+        <i class="fas fa-info-circle"></i> <span data-en="Driver login for accessing your thank you page" data-fr="Connexion conducteur pour accéder à votre page de remerciement">Driver login for accessing your thank you page</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN DASHBOARD ===== -->
+  <div id="adminPanel" class="admin-hidden admin-panel">
+    <h3><i class="fas fa-user-shield"></i> <span data-en="Admin Dashboard" data-fr="Tableau de bord administrateur">Admin Dashboard</span></h3>
+    <p style="font-size:0.85rem; opacity:0.8; margin:4px 0 12px;"><span data-en="Manage drivers, wishlists & messages" data-fr="Gérer les conducteurs, listes de souhaits et messages">Manage drivers, wishlists & messages</span></p>
+
+    <div class="admin-summary">
+      <div class="admin-summary-item total">
+        <span class="number">4</span>
+        <span class="label"><span data-en="Total" data-fr="Total">Total</span></span>
+      </div>
+      <div class="admin-summary-item pending">
+        <span class="number">2</span>
+        <span class="label"><span data-en="Pending" data-fr="En attente">Pending</span></span>
+      </div>
+      <div class="admin-summary-item approved">
+        <span class="number">1</span>
+        <span class="label"><span data-en="Approved" data-fr="Approuvé">Approved</span></span>
+      </div>
+      <div class="admin-summary-item rejected">
+        <span class="number">1</span>
+        <span class="label"><span data-en="Rejected" data-fr="Rejeté">Rejected</span></span>
+      </div>
+    </div>
+
+    <div style="font-size:0.75rem; opacity:0.6; margin:16px 0 10px;">
+      <i class="fas fa-hand-pointer"></i> <span data-en="Click driver name to view details &amp; actions" data-fr="Cliquez sur le nom du conducteur pour voir les détails et actions">Click driver name to view details &amp; actions</span>
+    </div>
+
+    <div class="admin-driver-list">
+      <div class="admin-driver-row" onclick="toggleDetail('detail1')">
+        <span class="name"><i class="fas fa-user-circle"></i> Michael Rivera</span>
+        <span class="status-badge status-pending"><span data-en="Pending" data-fr="En attente">Pending</span></span>
+      </div>
+      <div id="detail1" class="driver-detail">
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Company" data-fr="Compagnie">Company</span></span>
+          <span class="detail-value">First Student</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Email" data-fr="Courriel">Email</span></span>
+          <span class="detail-value">michael.r@first.com</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Badge/ID" data-fr="Badge/ID">Badge/ID</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Selfie" data-fr="Selfie">Selfie</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Registered" data-fr="Inscrit">Registered</span></span>
+          <span class="detail-value">Jan 15, 2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Documents" data-fr="Documents">Documents</span></span>
+          <span class="detail-value"><span class="badge-doc">2 <span data-en="docs" data-fr="docs">docs</span></span></span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-green" onclick="event.stopPropagation(); alert('✅ Michael Rivera approved! QR code generated.')">
+            <i class="fas fa-check"></i> <span data-en="Approve" data-fr="Approuver">Approve</span>
+          </button>
+          <button class="btn btn-orange" onclick="event.stopPropagation(); alert('📄 Request sent to Michael Rivera.')">
+            <i class="fas fa-file-upload"></i> <span data-en="Request Docs" data-fr="Demander des docs">Request Docs</span>
+          </button>
+          <button class="btn btn-red" onclick="event.stopPropagation(); if(confirm('Reject Michael Rivera?')) alert('❌ Rejected.')">
+            <i class="fas fa-times"></i> <span data-en="Reject" data-fr="Rejeter">Reject</span>
+          </button>
+          <button class="btn btn-outline" style="border-color:#6b6256; color:#6b6256;" onclick="event.stopPropagation(); if(confirm('Delete Michael Rivera?')) alert('🗑️ Deleted.')">
+            <i class="fas fa-trash"></i> <span data-en="Delete" data-fr="Supprimer">Delete</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-driver-row" onclick="toggleDetail('detail2')">
+        <span class="name"><i class="fas fa-user-circle"></i> Lisa Park</span>
+        <span class="status-badge status-pending"><span data-en="Pending" data-fr="En attente">Pending</span></span>
+      </div>
+      <div id="detail2" class="driver-detail">
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Company" data-fr="Compagnie">Company</span></span>
+          <span class="detail-value">Durham Services</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Email" data-fr="Courriel">Email</span></span>
+          <span class="detail-value">lisa.p@durham.com</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Badge/ID" data-fr="Badge/ID">Badge/ID</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Selfie" data-fr="Selfie">Selfie</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Registered" data-fr="Inscrit">Registered</span></span>
+          <span class="detail-value">Jan 14, 2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Documents" data-fr="Documents">Documents</span></span>
+          <span class="detail-value"><span class="badge-doc">1 <span data-en="doc" data-fr="doc">doc</span></span></span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-green" onclick="event.stopPropagation(); alert('✅ Lisa Park approved! QR code generated.')">
+            <i class="fas fa-check"></i> <span data-en="Approve" data-fr="Approuver">Approve</span>
+          </button>
+          <button class="btn btn-orange" onclick="event.stopPropagation(); alert('📄 Request sent to Lisa Park.')">
+            <i class="fas fa-file-upload"></i> <span data-en="Request Docs" data-fr="Demander des docs">Request Docs</span>
+          </button>
+          <button class="btn btn-red" onclick="event.stopPropagation(); if(confirm('Reject Lisa Park?')) alert('❌ Rejected.')">
+            <i class="fas fa-times"></i> <span data-en="Reject" data-fr="Rejeter">Reject</span>
+          </button>
+          <button class="btn btn-outline" style="border-color:#6b6256; color:#6b6256;" onclick="event.stopPropagation(); if(confirm('Delete Lisa Park?')) alert('🗑️ Deleted.')">
+            <i class="fas fa-trash"></i> <span data-en="Delete" data-fr="Supprimer">Delete</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-driver-row" onclick="toggleDetail('detail3')">
+        <span class="name"><i class="fas fa-user-circle"></i> James Carter</span>
+        <span class="status-badge status-approved"><span data-en="Approved" data-fr="Approuvé">Approved</span></span>
+      </div>
+      <div id="detail3" class="driver-detail">
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Company" data-fr="Compagnie">Company</span></span>
+          <span class="detail-value">First Student</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Email" data-fr="Courriel">Email</span></span>
+          <span class="detail-value">j.carter@first.com</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Badge/ID" data-fr="Badge/ID">Badge/ID</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Selfie" data-fr="Selfie">Selfie</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Registered" data-fr="Inscrit">Registered</span></span>
+          <span class="detail-value">Jan 12, 2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="QR Code" data-fr="Code QR">QR Code</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Active" data-fr="Actif">Active</span></span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-orange" onclick="event.stopPropagation(); alert('📄 Request sent to James Carter.')">
+            <i class="fas fa-file-upload"></i> <span data-en="Request Docs" data-fr="Demander des docs">Request Docs</span>
+          </button>
+          <button class="btn btn-red" onclick="event.stopPropagation(); if(confirm('Deactivate James Carter?')) alert('⚠️ Deactivated.')">
+            <i class="fas fa-ban"></i> <span data-en="Deactivate" data-fr="Désactiver">Deactivate</span>
+          </button>
+          <button class="btn btn-outline" style="border-color:#6b6256; color:#6b6256;" onclick="event.stopPropagation(); if(confirm('Delete James Carter?')) alert('🗑️ Deleted.')">
+            <i class="fas fa-trash"></i> <span data-en="Delete" data-fr="Supprimer">Delete</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-driver-row" onclick="toggleDetail('detail4')">
+        <span class="name"><i class="fas fa-user-circle"></i> Sarah Johnson</span>
+        <span class="status-badge status-rejected"><span data-en="Rejected" data-fr="Rejeté">Rejected</span></span>
+      </div>
+      <div id="detail4" class="driver-detail">
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Company" data-fr="Compagnie">Company</span></span>
+          <span class="detail-value">Independent</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Email" data-fr="Courriel">Email</span></span>
+          <span class="detail-value">sarah.j@email.com</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Badge/ID" data-fr="Badge/ID">Badge/ID</span></span>
+          <span class="detail-value" style="color:#ef4444;">❌ <span data-en="Missing" data-fr="Manquant">Missing</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Selfie" data-fr="Selfie">Selfie</span></span>
+          <span class="detail-value" style="color:#22c55e;">✅ <span data-en="Uploaded" data-fr="Téléchargé">Uploaded</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Registered" data-fr="Inscrit">Registered</span></span>
+          <span class="detail-value">Jan 10, 2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><span data-en="Reason" data-fr="Raison">Reason</span></span>
+          <span class="detail-value" style="color:#ef4444;"><span data-en="Missing badge/ID" data-fr="Badge/ID manquant">Missing badge/ID</span></span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-green" onclick="event.stopPropagation(); alert('✅ Sarah Johnson approved! QR code generated.')">
+            <i class="fas fa-check"></i> <span data-en="Approve" data-fr="Approuver">Approve</span>
+          </button>
+          <button class="btn btn-orange" onclick="event.stopPropagation(); alert('📄 Request sent to Sarah Johnson.')">
+            <i class="fas fa-file-upload"></i> <span data-en="Request Docs" data-fr="Demander des docs">Request Docs</span>
+          </button>
+          <button class="btn btn-outline" style="border-color:#6b6256; color:#6b6256;" onclick="event.stopPropagation(); if(confirm('Delete Sarah Johnson?')) alert('🗑️ Deleted.')">
+            <i class="fas fa-trash"></i> <span data-en="Delete" data-fr="Supprimer">Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CHANGE PASSWORD (Admin) ===== -->
+    <div class="settings-section" style="margin-top:20px;">
+      <div class="settings-title"><i class="fas fa-key"></i> <span data-en="Change Admin Password" data-fr="Changer le mot de passe administrateur">Change Admin Password</span></div>
+      <div class="input-group">
+        <label><span data-en="Current Password" data-fr="Mot de passe actuel">Current Password</span></label>
+        <div class="password-wrapper">
+          <input type="password" id="adminCurrentPwd" placeholder="········" style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+          <button type="button" class="password-toggle" onclick="togglePassword('adminCurrentPwd', this)" style="color:#a09888;">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label><span data-en="New Password" data-fr="Nouveau mot de passe">New Password</span></label>
+        <div class="password-wrapper">
+          <input type="password" id="adminNewPwd" placeholder="········" style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+          <button type="button" class="password-toggle" onclick="togglePassword('adminNewPwd', this)" style="color:#a09888;">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:0;">
+        <label><span data-en="Confirm New Password" data-fr="Confirmer le nouveau mot de passe">Confirm New Password</span></label>
+        <div class="password-wrapper">
+          <input type="password" id="adminConfirmPwd" placeholder="········" style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+          <button type="button" class="password-toggle" onclick="togglePassword('adminConfirmPwd', this)" style="color:#a09888;">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-orange" onclick="alert('🔑 Admin password updated successfully!')" style="width:auto; padding:8px 20px; margin-top:10px;">
+        <i class="fas fa-save"></i> <span data-en="Update Password" data-fr="Mettre à jour le mot de passe">Update Password</span>
+      </button>
+    </div>
+
+    <!-- ===== WISHLIST MANAGEMENT (Admin) ===== -->
+    <div class="settings-section">
+      <div class="settings-title"><i class="fas fa-gift"></i> <span data-en="Wishlist Management" data-fr="Gestion de la liste de souhaits">Wishlist Management</span></div>
+      
+      <div style="font-weight:500; font-size:0.8rem; color:#d0c8b8; margin:10px 0 6px;"><span data-en="Driver" data-fr="Conducteur">Driver</span>: Michael Rivera</div>
+      
+      <div class="wishlist-item">
+        <div class="item-img"><i class="fas fa-mug-hot"></i></div>
+        <div class="item-info">
+          <div class="item-name">Coffee Gift Card</div>
+          <div class="item-points">⭐ 5 <span data-en="points" data-fr="points">points</span></div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-xs btn-blue" onclick="alert('📷 Upload photo for Coffee Gift Card')"><i class="fas fa-image"></i></button>
+          <button class="btn btn-xs btn-orange" onclick="alert('✏️ Edit points for Coffee Gift Card')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-xs btn-red" onclick="if(confirm('Remove Coffee Gift Card from wishlist?')) alert('🗑️ Removed')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      
+      <div class="wishlist-item">
+        <div class="item-img"><i class="fas fa-book"></i></div>
+        <div class="item-info">
+          <div class="item-name">Book - The Driver's Journey</div>
+          <div class="item-points">⭐ 10 <span data-en="points" data-fr="points">points</span></div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-xs btn-blue" onclick="alert('📷 Upload photo for Book')"><i class="fas fa-image"></i></button>
+          <button class="btn btn-xs btn-orange" onclick="alert('✏️ Edit points for Book')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-xs btn-red" onclick="if(confirm('Remove Book from wishlist?')) alert('🗑️ Removed')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      
+      <div class="wishlist-item">
+        <div class="item-img"><i class="fas fa-gas-pump"></i></div>
+        <div class="item-info">
+          <div class="item-name">Gas Card</div>
+          <div class="item-points">⭐ 20 <span data-en="points" data-fr="points">points</span></div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-xs btn-blue" onclick="alert('📷 Upload photo for Gas Card')"><i class="fas fa-image"></i></button>
+          <button class="btn btn-xs btn-orange" onclick="alert('✏️ Edit points for Gas Card')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-xs btn-red" onclick="if(confirm('Remove Gas Card from wishlist?')) alert('🗑️ Removed')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      
+      <div class="wishlist-item">
+        <div class="item-img"><i class="fas fa-tshirt"></i></div>
+        <div class="item-info">
+          <div class="item-name">School Bus T-Shirt</div>
+          <div class="item-points">⭐ 15 <span data-en="points" data-fr="points">points</span></div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-xs btn-blue" onclick="alert('📷 Upload photo for T-Shirt')"><i class="fas fa-image"></i></button>
+          <button class="btn btn-xs btn-orange" onclick="alert('✏️ Edit points for T-Shirt')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-xs btn-red" onclick="if(confirm('Remove T-Shirt from wishlist?')) alert('🗑️ Removed')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      
+      <div class="wishlist-add">
+        <div style="font-weight:500; font-size:0.85rem; margin-bottom:8px; color:#d0c8b8;">
+          <i class="fas fa-plus-circle" style="color:var(--green);"></i> <span data-en="Add New Wishlist Item" data-fr="Ajouter un article à la liste de souhaits">Add New Wishlist Item</span>
+        </div>
+        <div class="input-group" style="margin-bottom:8px;">
+          <label style="color:#d0c8b8;"><span data-en="Driver" data-fr="Conducteur">Driver</span></label>
+          <select style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+            <option>Michael Rivera</option>
+            <option>Lisa Park</option>
+            <option>James Carter</option>
+            <option>Sarah Johnson</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin-bottom:8px;">
+          <label style="color:#d0c8b8;"><span data-en="Item Name" data-fr="Nom de l'article">Item Name</span></label>
+          <input type="text" placeholder="e.g. Starbucks Gift Card" style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+        </div>
+        <div class="input-group" style="margin-bottom:8px;">
+          <label style="color:#d0c8b8;"><span data-en="Points Value" data-fr="Valeur en points">Points Value</span></label>
+          <input type="number" placeholder="e.g. 10" style="background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+          <label style="color:#d0c8b8;"><span data-en="Upload Photo" data-fr="Télécharger une photo">Upload Photo</span></label>
+          <input type="file" accept="image/*" style="padding:10px 16px; background:#2d2a24; border-color:#4d453c; color:#f0e8d8;">
+        </div>
+        <button class="btn btn-sm btn-green" onclick="alert('✅ New wishlist item added!')" style="width:auto; padding:8px 20px; margin-top:10px;">
+          <i class="fas fa-plus"></i> <span data-en="Add to Wishlist" data-fr="Ajouter à la liste de souhaits">Add to Wishlist</span>
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top:18px; padding-top:14px; border-top:1px solid #4d453c; font-size:0.7rem; opacity:0.4; display:flex; justify-content:space-between; flex-wrap:wrap;">
+      <span><i class="fas fa-lock"></i> <span data-en="Admin access: 5 taps on logo" data-fr="Accès admin: 5 tapotements sur le logo">Admin access: 5 taps on logo</span></span>
+      <span><i class="fas fa-sync-alt"></i> <span data-en="Last updated" data-fr="Dernière mise à jour">Last updated</span>: <span data-en="Today" data-fr="Aujourd'hui">Today</span></span>
+    </div>
+  </div>
+
+  <div class="section-divider">
+    <i class="fas fa-arrow-right"></i> <span data-en="Home → Search → Register → Login → Admin" data-fr="Accueil → Recherche → Inscription → Connexion → Admin">Home → Search → Register → Login → Admin</span> <i class="fas fa-arrow-left"></i>
+  </div>
+
+  <div class="footer-links">
+    <span><i class="fas fa-shield-alt"></i> <span data-en="Privacy" data-fr="Confidentialité">Privacy</span></span>
+    <span><i class="fas fa-file-contract"></i> <span data-en="Terms" data-fr="Conditions">Terms</span></span>
+    <span><i class="fas fa-undo-alt"></i> <span data-en="Refund" data-fr="Remboursement">Refund</span></span>
+    <span>© 2026 ThankDriver</span>
+  </div>
+</div>
+
+<!-- ===== QR SCANNER MODAL ===== -->
+<div id="qrScannerModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fas fa-qrcode" style="color:var(--bus-yellow);"></i> <span data-en="Scan QR Code" data-fr="Scanner le code QR">Scan QR Code</span></h2>
+      <button class="close-btn" onclick="closeQRScanner()">✕</button>
+    </div>
+    <div id="qr-reader"></div>
+    <div class="scanner-instructions">
+      <i class="fas fa-camera"></i> <span data-en="Point your camera at the driver's QR code" data-fr="Visez le code QR du conducteur">Point your camera at the driver's QR code</span>
+    </div>
+    <div class="scanner-status" id="scannerStatus"></div>
+  </div>
+</div>
+
+<!-- ===== QUEUE MODAL ===== -->
+<div id="queueModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fas fa-cloud" style="color:var(--orange);"></i> <span data-en="Offline Queue" data-fr="File d'attente hors ligne">Offline Queue</span></h2>
+      <button class="close-btn" onclick="closeQueueModal()">✕</button>
+    </div>
+    <div id="queueList">
+      <div class="queue-empty"><span data-en="No pending thank-yous" data-fr="Aucun remerciement en attente">No pending thank-yous</span></div>
+    </div>
+    <div class="queue-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeQueueModal()" style="flex:1;">
+        <span data-en="Close" data-fr="Fermer">Close</span>
+      </button>
+      <button class="btn btn-sm" onclick="syncQueue()" style="flex:1;" id="syncQueueBtn">
+        <i class="fas fa-sync-alt"></i> <span data-en="Sync Now" data-fr="Synchroniser maintenant">Sync Now</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OFFLINE BADGE ===== -->
+<button id="offlineBadge" onclick="openQueueModal()">
+  <i class="fas fa-cloud badge-icon"></i>
+  <span data-en="Offline" data-fr="Hors ligne">Offline</span>
+  <span class="badge-count" id="queueCount">0</span>
+</button>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// ===== TRANSLATION SYSTEM =====
+// ============================================================
+
+const translations = {
+  en: {
+    // Dynamic content
+    'no_drivers_found': 'No drivers found. Try a different search term.',
+    'search_results': 'Search Results',
+    'points': 'points',
+    'docs': 'docs',
+    'doc': 'doc',
+    'pending': 'Pending',
+    'approved': 'Approved',
+    'rejected': 'Rejected',
+    'total': 'Total',
+    'anonymous': 'Anonymous',
+    'share': 'share',
+    'custom': 'custom',
+    'today': 'Today',
+    'home_page': 'Home page',
+    'copy': 'copy',
+    'unique': 'unique',
+    'items': 'items',
+    'captcha': 'captcha',
+    'offline_pending': 'Offline. Thank you saved!',
+    'offline_awaiting_sync': 'Offline. Waiting to sync.',
+    'syncing': 'Syncing {count} thank-yous...',
+    'sync_complete': 'All thank-yous sent!',
+    'sync_pending': '{count} thank-yous pending',
+    'back_online': 'Back online! Sending thank-yous...',
+    'offline_mode': 'Offline. Your thank-yous will be saved.',
+    'starting_camera': '📷 Starting camera...',
+    'driver_found': '✅ Driver found!',
+    'scanning_qr': '📸 Scanning for QR code...',
+    'scanner_error': '❌ Error: {error}',
+    'no_pending': 'No pending thank-yous',
+    'delete_confirm': 'Delete this item from queue?',
+    'deleted': 'Deleted',
+    'send_thank_you': 'Send Thank You',
+    'your_details': 'Your details',
+    'send_as': 'Send as',
+    'driver_wishlist': 'Driver\'s Wishlist',
+    'thank_you_sent': '✅ Thank you sent to {name}!',
+    'custom_amount': 'Custom Amount'
+  },
+  fr: {
+    'no_drivers_found': 'Aucun conducteur trouvé. Essayez un autre terme de recherche.',
+    'search_results': 'Résultats de recherche',
+    'points': 'points',
+    'docs': 'docs',
+    'doc': 'doc',
+    'pending': 'En attente',
+    'approved': 'Approuvé',
+    'rejected': 'Rejeté',
+    'total': 'Total',
+    'anonymous': 'Anonyme',
+    'share': 'partager',
+    'custom': 'personnalisé',
+    'today': 'Aujourd\'hui',
+    'home_page': 'Page d\'accueil',
+    'copy': 'copier',
+    'unique': 'unique',
+    'items': 'articles',
+    'captcha': 'captcha',
+    'offline_pending': 'Hors ligne. Remerciement sauvegardé!',
+    'offline_awaiting_sync': 'Hors ligne. Synchronisation en attente.',
+    'syncing': 'Synchronisation de {count} remerciements...',
+    'sync_complete': 'Tous les remerciements ont été envoyés!',
+    'sync_pending': '{count} remerciements en attente',
+    'back_online': 'De retour en ligne! Envoi des remerciements...',
+    'offline_mode': 'Hors ligne. Vos remerciements seront sauvegardés.',
+    'starting_camera': '📷 Démarrage de la caméra...',
+    'driver_found': '✅ Conducteur trouvé!',
+    'scanning_qr': '📸 Scannez le code QR...',
+    'scanner_error': '❌ Erreur: {error}',
+    'no_pending': 'Aucun remerciement en attente',
+    'delete_confirm': 'Supprimer cet élément de la file d\'attente?',
+    'deleted': 'Supprimé',
+    'send_thank_you': 'Envoyer un merci',
+    'your_details': 'Vos coordonnées',
+    'send_as': 'Envoyer en tant que',
+    'driver_wishlist': 'Liste de souhaits du conducteur',
+    'thank_you_sent': '✅ Merci envoyé à {name}!',
+    'custom_amount': 'Montant personnalisé'
+  }
+};
+
+// Translation function for dynamic content
+function t(key, params = {}) {
+  let text = translations[currentLang]?.[key] || key;
+  // Replace params like {count}
+  Object.keys(params).forEach(param => {
+    text = text.replace(`{${param}}`, params[param]);
+  });
+  return text;
+}
+
+// Translate dynamic elements with data-i18n attribute
+function translateDynamicElements() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = t(key);
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = text;
+    } else if (el.tagName === 'BUTTON') {
+      // For buttons, we need to preserve icons
+      const icon = el.querySelector('i');
+      if (icon) {
+        // Keep the icon, update text nodes
+        const textNodes = Array.from(el.childNodes).filter(node => node.nodeType === 3);
+        textNodes.forEach(node => {
+          if (node.textContent.trim()) {
+            node.textContent = ' ' + text;
+          }
+        });
+        // Also check if there's a span with text
+        const span = el.querySelector('span:not(.badge-count)');
+        if (span) span.textContent = text;
+      } else {
+        el.textContent = text;
+      }
+    } else {
+      el.textContent = text;
+    }
+  });
+}
+
+// ============================================================
+// ===== DRIVER DATABASE (Mock) =====
+// ============================================================
+
+const drivers = [
+  {
+    id: 'michael-rivera',
+    name: 'Michael Rivera',
+    company: 'First Student',
+    busNumber: '#12',
+    rating: 4.8,
+    status: 'pending',
+    email: 'michael.r@first.com',
+    registered: 'Jan 15, 2026',
+    wishlist: [
+      { name: 'Coffee Gift Card', points: 5, icon: 'fa-mug-hot' },
+      { name: 'Book - The Driver\'s Journey', points: 10, icon: 'fa-book' },
+      { name: 'Gas Card', points: 20, icon: 'fa-gas-pump' },
+      { name: 'School Bus T-Shirt', points: 15, icon: 'fa-tshirt' }
+    ],
+    qrCode: 'https://thankdriver.page/michael-rivera'
+  },
+  {
+    id: 'lisa-park',
+    name: 'Lisa Park',
+    company: 'Durham Services',
+    busNumber: '#7',
+    rating: 4.9,
+    status: 'pending',
+    email: 'lisa.p@durham.com',
+    registered: 'Jan 14, 2026',
+    wishlist: [
+      { name: 'Starbucks Card', points: 5, icon: 'fa-coffee' },
+      { name: 'Spa Gift Card', points: 25, icon: 'fa-spa' },
+      { name: 'Book - Mindfulness', points: 12, icon: 'fa-book-open' }
+    ],
+    qrCode: 'https://thankdriver.page/lisa-park'
+  },
+  {
+    id: 'james-carter',
+    name: 'James Carter',
+    company: 'First Student',
+    busNumber: '#5',
+    rating: 4.7,
+    status: 'approved',
+    email: 'j.carter@first.com',
+    registered: 'Jan 12, 2026',
+    wishlist: [
+      { name: 'Gift Card - Amazon', points: 20, icon: 'fa-amazon' },
+      { name: 'Sunglasses', points: 15, icon: 'fa-sunglasses' },
+      { name: 'Tool Set', points: 30, icon: 'fa-tools' }
+    ],
+    qrCode: 'https://thankdriver.page/james-carter'
+  },
+  {
+    id: 'sarah-johnson',
+    name: 'Sarah Johnson',
+    company: 'Independent',
+    busNumber: '#3',
+    rating: 4.5,
+    status: 'rejected',
+    email: 'sarah.j@email.com',
+    registered: 'Jan 10, 2026',
+    wishlist: [
+      { name: 'Craft Supplies', points: 10, icon: 'fa-palette' },
+      { name: 'Gardening Kit', points: 15, icon: 'fa-seedling' }
+    ],
+    qrCode: 'https://thankdriver.page/sarah-johnson'
+  }
+];
+
+// ============================================================
+// ===== SEARCH FUNCTIONALITY =====
+// ============================================================
+
+window.searchDriver = function() {
+  const input = document.getElementById('searchInput');
+  const query = input.value.trim().toLowerCase();
+  const resultsContainer = document.getElementById('searchResults');
+  
+  if (!query) {
+    resultsContainer.innerHTML = '';
+    return;
+  }
+  
+  // Filter drivers
+  const results = drivers.filter(driver => 
+    driver.name.toLowerCase().includes(query) || 
+    driver.company.toLowerCase().includes(query) ||
+    driver.busNumber.includes(query)
+  );
+  
+  // Display results
+  if (results.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="search-no-results">
+        <i class="fas fa-search" style="display:block; font-size:2rem; margin-bottom:8px; color:#ccc;"></i>
+        ${t('no_drivers_found')}
+      </div>
+    `;
+    return;
+  }
+  
+  resultsContainer.innerHTML = `
+    <div style="font-weight:600; margin:8px 0 12px; font-size:0.9rem;">
+      ${t('search_results')} (${results.length})
+    </div>
+    ${results.map(driver => `
+      <div class="search-result-item" onclick="selectDriver('${driver.id}')">
+        <div>
+          <span class="result-name">${driver.name}</span>
+          <span class="result-rating">⭐ ${driver.rating}</span>
+        </div>
+        <div class="result-company">${driver.company} · Bus ${driver.busNumber}</div>
+        <div style="margin-top:4px;">
+          <span class="status-badge status-${driver.status}" style="font-size:0.6rem; padding:2px 12px; border-radius:40px; font-weight:600;">
+            ${t(driver.status)}
+          </span>
+        </div>
+      </div>
+    `).join('')}
+  `;
+  
+  // Scroll to results
+  resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// ============================================================
+// ===== SELECT DRIVER =====
+// ============================================================
+
+window.selectDriver = function(driverId) {
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver) return;
+  
+  const container = document.getElementById('selectedDriverContainer');
+  
+  // Generate driver card HTML
+  const wishlistHtml = driver.wishlist.map(item => `
+    <div class="wishlist-item">
+      <div class="item-img"><i class="fas ${item.icon}"></i></div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-points">⭐ ${item.points} ${t('points')}</div>
+      </div>
+      <span class="tag-yellow">❤️</span>
+    </div>
+  `).join('');
+  
+  container.innerHTML = `
+    <div class="driver-preview" id="selectedDriverCard">
+      <div class="driver-row">
+        <div class="driver-avatar"><i class="fas fa-user-circle"></i></div>
+        <div>
+          <strong style="font-size:1.1rem;">${driver.name}</strong> <span class="badge-yellow">⭐ ${driver.rating}</span><br>
+          <span style="font-size:0.85rem; color:#5d5346;">${driver.company} · Bus ${driver.busNumber}</span>
+        </div>
+        <span style="margin-left:auto; background:var(--bus-yellow); border-radius:40px; padding:3px 16px; font-size:0.7rem; font-weight:600; color:var(--charcoal);">
+          <i class="fas fa-qrcode"></i> ${t('unique')}
+        </span>
+      </div>
+
+      <div style="margin:14px 0 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:600; font-size:0.95rem;">
+            <i class="fas fa-gift" style="color:var(--bus-yellow-dark);"></i> ${t('driver_wishlist')}
+          </span>
+          <span class="badge-yellow">${driver.wishlist.length} ${t('items')}</span>
+        </div>
+        ${wishlistHtml}
+      </div>
+
+      <div class="point-group" style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
+        <button class="btn btn-sm btn-outline" style="width:auto;" onclick="sendThankYouWithAmount('${driver.id}', 5)">
+          <i class="fas fa-thumbs-up"></i> $5
+        </button>
+        <button class="btn btn-sm btn-outline" style="width:auto;" onclick="sendThankYouWithAmount('${driver.id}', 10)">
+          <i class="fas fa-thumbs-up"></i> $10
+        </button>
+        <button class="btn btn-sm btn-outline" style="width:auto;" onclick="sendThankYouWithAmount('${driver.id}', 20)">
+          <i class="fas fa-thumbs-up"></i> $20
+        </button>
+        <button class="btn btn-sm btn-outline" style="width:auto;" onclick="customThankYou('${driver.id}')">
+          <i class="fas fa-pen"></i> ${t('custom')}
+        </button>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 8px;">
+        <span class="badge-yellow" style="background:#e6dcc8; cursor:default;">❤️ Great job!</span>
+        <span class="badge-yellow" style="background:#e6dcc8; cursor:default;">🚌 Safe drive</span>
+        <span class="badge-yellow" style="background:#e6dcc8; cursor:default;">⭐ Awesome</span>
+      </div>
+
+      <div class="sender-section">
+        <div style="font-weight:600; font-size:0.9rem; margin-bottom:8px;">
+          <i class="fas fa-user-edit"></i> ${t('your_details')}
+        </div>
+        <div class="toggle-container">
+          <input type="checkbox" id="anonymousToggle" onchange="toggleSenderName()">
+          <label for="anonymousToggle" class="toggle-label">
+            <i class="fas fa-user-secret"></i> ${t('send_as')} <span class="anonymous-text">${t('anonymous')}</span>
+          </label>
+        </div>
+        <div class="input-group" id="senderNameGroup">
+          <label><i class="fas fa-user"></i> <span data-en="Your name (optional)" data-fr="Votre nom (facultatif)">Your name (optional)</span></label>
+          <input type="text" id="senderName" placeholder="e.g. Sarah from Bus #5" value="Sarah from Bus #5">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:10px 0 12px;">
+        <input type="text" id="thankYouMessage" placeholder="Your message..." style="flex:2; padding:12px 18px; border-radius:60px; border:1.5px solid #ddd2be; background:white; min-width:140px; font-size:0.9rem;">
+        <span style="background:#d9d0bd; padding:8px 20px; border-radius:60px; font-size:0.8rem; font-weight:500;">
+          <i class="fas fa-shield-alt"></i> ${t('captcha')}
+        </span>
+      </div>
+
+      <button class="btn btn-send" onclick="sendThankYou('${driver.id}')">
+        <i class="fas fa-paper-plane"></i> ${t('send_thank_you')}
+      </button>
+
+      <div style="display:flex; gap:18px; font-size:1.3rem; margin-top:12px; align-items:center;">
+        <i class="fab fa-facebook" style="color:#3b5998; cursor:pointer;"></i>
+        <i class="fab fa-whatsapp" style="color:#25D366; cursor:pointer;"></i>
+        <i class="fab fa-twitter" style="color:#1DA1F2; cursor:pointer;"></i>
+        <span style="margin-left:auto; font-size:0.75rem; background:#e6dcc8; padding:4px 20px; border-radius:40px; font-weight:500;">${t('share')}</span>
+      </div>
+
+      <div class="qr-image-container">
+        <div id="driverQR"></div>
+        <div>
+          <div style="font-weight:700; font-size:0.95rem;">Scan to thank</div>
+          <div style="font-size:0.75rem; color:#5d5346; margin:2px 0 4px;">${driver.id}</div>
+          <span class="badge-yellow" style="display:inline-block;"><i class="fas fa-user"></i> Driver page</span>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Generate QR for the selected driver
+  generateDriverQR(driver.qrCode);
+  
+  // Scroll to the selected driver
+  container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+  // Translate dynamic elements in the newly rendered card
+  translateDynamicElements();
+};
+
+// ============================================================
+// ===== SEND THANK YOU (Updated) =====
+// ============================================================
+
+window.sendThankYou = function(driverId) {
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver) return;
+  
+  const anonymous = document.getElementById('anonymousToggle').checked;
+  const senderName = document.getElementById('senderName').value;
+  const message = document.getElementById('thankYouMessage').value;
+  
+  const data = {
+    driverId: driver.id,
+    driverName: driver.name,
+    message: message || 'Thank you for your service!',
+    points: 10,
+    senderName: senderName || 'A grateful parent',
+    anonymous: anonymous,
+    timestamp: new Date().toISOString()
+  };
+  
+  if (navigator.onLine) {
+    // Online - send directly
+    try {
+      setTimeout(() => {
+        showToast(t('thank_you_sent', { name: driver.name }));
+      }, 500);
+    } catch (error) {
+      offlineQueue.addToQueue(data);
+      showToast('📶 ' + t('offline_pending'));
+    }
+  } else {
+    // Offline - save to queue
+    offlineQueue.addToQueue(data);
+    showToast('📶 ' + t('offline_pending'));
+  }
+};
+
+window.sendThankYouWithAmount = function(driverId, amount) {
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver) return;
+  showToast(`💝 $${amount} ${t('points')} sent to ${driver.name}!`);
+};
+
+window.customThankYou = function(driverId) {
+  const driver = drivers.find(d => d.id === driverId);
+  if (!driver) return;
+  const amount = prompt(t('custom_amount') + ' ($):');
+  if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+    showToast(`💝 $${amount} ${t('points')} sent to ${driver.name}!`);
+  }
+};
+
+// ============================================================
+// ===== TOAST SYSTEM =====
+// ============================================================
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.innerHTML = message;
+    toast.className = 'show';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+      toast.className = '';
+    }, 4000);
+  }
+}
+
+// ============================================================
+// ===== QR GENERATION (Fixed) =====
+// ============================================================
+
+function generateHomeQR() {
+  const container = document.getElementById('homeQR');
+  if (container) {
+    container.innerHTML = '';
+    try {
+      new QRCode(container, {
+        text: 'https://thankdriver.com',
+        width: 60,
+        height: 60,
+        colorDark: '#2d2a24',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    } catch(e) {
+      console.warn('QR generation failed:', e);
+    }
+  }
+}
+
+function generateDriverQR(qrText) {
+  const container = document.getElementById('driverQR');
+  if (container) {
+    container.innerHTML = '';
+    try {
+      new QRCode(container, {
+        text: qrText || 'https://thankdriver.com',
+        width: 96,
+        height: 96,
+        colorDark: '#2d2a24',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    } catch(e) {
+      console.warn('QR generation failed:', e);
+    }
+  }
+}
+
+// ============================================================
+// ===== OFFLINE QUEUE SYSTEM (Fixed) =====
+// ============================================================
+
+class OfflineQueue {
+  constructor() {
+    this.dbName = 'ThankDriverDB';
+    this.storeName = 'offlineThanks';
+    this.db = null;
+    this.isSyncing = false;
+    this.setupListeners();
+    this.initDB().catch(err => {
+      console.error('Database initialization failed:', err);
+    });
+  }
+
+  async initDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, 1);
+      
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+          store.createIndex('timestamp', 'timestamp');
+          store.createIndex('synced', 'synced');
+        }
+      };
+      
+      request.onsuccess = (event) => {
+        this.db = event.target.result;
+        resolve();
+      };
+      
+      request.onerror = (event) => {
+        reject(event.target.error);
+      };
+    });
+  }
+
+  async addToQueue(data) {
+    await this.initDB();
+    
+    const item = {
+      id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      ...data,
+      timestamp: Date.now(),
+      synced: false,
+      retryCount: 0,
+      failed: false
+    };
+    
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const store = transaction.objectStore(this.storeName);
+    store.add(item);
+    
+    this.showBadge();
+    await this.updateBadgeCount();
+    
+    if (navigator.onLine) {
+      setTimeout(() => this.sync(), 1000);
+    }
+    
+    return item;
+  }
+
+  async getPendingItems() {
+    await this.initDB();
+    
+    return new Promise((resolve) => {
+      const transaction = this.db.transaction([this.storeName], 'readonly');
+      const store = transaction.objectStore(this.storeName);
+      const index = store.index('synced');
+      const results = [];
+      
+      const cursor = index.openCursor(IDBKeyRange.only(false));
+      
+      cursor.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
+        } else {
+          resolve(results);
+        }
+      };
+      
+      cursor.onerror = () => resolve([]);
+    });
+  }
+
+  async getAllItems() {
+    await this.initDB();
+    
+    return new Promise((resolve) => {
+      const transaction = this.db.transaction([this.storeName], 'readonly');
+      const store = transaction.objectStore(this.storeName);
+      const results = [];
+      
+      const cursor = store.openCursor();
+      
+      cursor.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
+        } else {
+          resolve(results);
+        }
+      };
+      
+      cursor.onerror = () => resolve([]);
+    });
+  }
+
+  async markSynced(id) {
+    await this.initDB();
+    
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const store = transaction.objectStore(this.storeName);
+    
+    const request = store.get(id);
+    request.onsuccess = () => {
+      const item = request.result;
+      if (item) {
+        item.synced = true;
+        store.put(item);
+        this.updateBadgeCount();
+      }
+    };
+  }
+
+  async markFailed(id) {
+    await this.initDB();
+    
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const store = transaction.objectStore(this.storeName);
+    
+    const request = store.get(id);
+    request.onsuccess = () => {
+      const item = request.result;
+      if (item) {
+        item.failed = true;
+        item.synced = false;
+        store.put(item);
+        this.updateBadgeCount();
+      }
+    };
+  }
+
+  async deleteItem(id) {
+    await this.initDB();
+    
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const store = transaction.objectStore(this.storeName);
+    store.delete(id);
+    this.updateBadgeCount();
+  }
+
+  async sync() {
+    if (this.isSyncing) return;
+    if (!navigator.onLine) {
+      showToast('📶 ' + t('offline_awaiting_sync'));
+      return;
+    }
+    
+    const pendingItems = await this.getPendingItems();
+    if (pendingItems.length === 0) {
+      this.hideBadge();
+      return;
+    }
+    
+    this.isSyncing = true;
+    showToast('📤 ' + t('syncing', { count: pendingItems.length }));
+    
+    let syncedCount = 0;
+    let failedCount = 0;
+    
+    for (const item of pendingItems) {
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await this.markSynced(item.id);
+        syncedCount++;
+      } catch (error) {
+        item.retryCount++;
+        if (item.retryCount >= 5) {
+          await this.markFailed(item.id);
+          failedCount++;
+        } else {
+          await this.updateItem(item);
+        }
+      }
+    }
+    
+    this.isSyncing = false;
+    await this.updateBadgeCount();
+    
+    const remaining = await this.getPendingItems();
+    if (remaining.length === 0) {
+      this.hideBadge();
+      showToast('✅ ' + t('sync_complete'));
+    } else {
+      showToast(`📤 ${t('sync_pending', { count: remaining.length })}`);
+    }
+  }
+
+  async updateItem(item) {
+    await this.initDB();
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const store = transaction.objectStore(this.storeName);
+    store.put(item);
+  }
+
+  async updateBadgeCount() {
+    const pending = await this.getPendingItems();
+    const count = pending.length;
+    const badge = document.getElementById('offlineBadge');
+    const counter = document.getElementById('queueCount');
+    
+    if (badge) {
+      if (count > 0) {
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    if (counter) {
+      counter.textContent = count;
+    }
+  }
+
+  showBadge() {
+    const badge = document.getElementById('offlineBadge');
+    if (badge) badge.style.display = 'flex';
+  }
+
+  hideBadge() {
+    const badge = document.getElementById('offlineBadge');
+    if (badge) badge.style.display = 'none';
+  }
+
+  setupListeners() {
+    window.addEventListener('online', () => {
+      showToast('📡 ' + t('back_online'));
+      setTimeout(() => this.sync(), 1000);
+    });
+    
+    window.addEventListener('offline', () => {
+      showToast('📶 ' + t('offline_mode'));
+      this.showBadge();
+    });
+  }
+}
+
+// ============================================================
+// ===== QR SCANNER (Fixed) =====
+// ============================================================
+
+let html5QrCode = null;
+let scannerInitialized = false;
+
+function openQRScanner() {
+  const modal = document.getElementById('qrScannerModal');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  
+  // Clean up any existing scanner
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      html5QrCode = null;
+      scannerInitialized = false;
+    }).catch(() => {
+      html5QrCode = null;
+      scannerInitialized = false;
+    });
+  }
+  
+  // Start fresh scanner
+  startQRScanner();
+}
+
+function startQRScanner() {
+  const statusEl = document.getElementById('scannerStatus');
+  statusEl.textContent = t('starting_camera');
+  
+  try {
+    html5QrCode = new Html5Qrcode("qr-reader");
+    
+    const config = {
+      fps: 15,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0
+    };
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      (decodedText) => {
+        statusEl.textContent = t('driver_found');
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+          scannerInitialized = false;
+        }).catch(() => {});
+        
+        // Try to find driver by QR text
+        document.getElementById('searchInput').value = decodedText;
+        searchDriver();
+        closeQRScanner();
+      },
+      (errorMessage) => {
+        if (errorMessage && !errorMessage.includes('No')) {
+          statusEl.textContent = errorMessage;
+        }
+      }
+    ).then(() => {
+      scannerInitialized = true;
+      statusEl.textContent = t('scanning_qr');
+    }).catch((err) => {
+      statusEl.textContent = t('scanner_error', { error: err.message || err });
+      console.error(err);
+    });
+  } catch (err) {
+    statusEl.textContent = t('scanner_error', { error: err.message || err });
+    console.error(err);
+  }
+}
+
+function closeQRScanner() {
+  const modal = document.getElementById('qrScannerModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+  
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      html5QrCode = null;
+      scannerInitialized = false;
+    }).catch(() => {
+      html5QrCode = null;
+      scannerInitialized = false;
+    });
+  }
+}
+
+function uploadQR() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        showToast('📸 QR uploaded, searching...');
+        // For demo, just show a message
+        setTimeout(() => {
+          document.getElementById('searchInput').value = 'Michael Rivera';
+          searchDriver();
+        }, 500);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+// ============================================================
+// ===== QUEUE MODAL =====
+// ============================================================
+
+async function openQueueModal() {
+  const modal = document.getElementById('queueModal');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  await updateQueueList();
+}
+
+function closeQueueModal() {
+  const modal = document.getElementById('queueModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function updateQueueList() {
+  const items = await offlineQueue.getAllItems();
+  const container = document.getElementById('queueList');
+  
+  if (items.length === 0) {
+    container.innerHTML = `<div class="queue-empty">${t('no_pending')}</div>`;
+    return;
+  }
+  
+  container.innerHTML = items.map(item => {
+    let statusClass = 'status-pending-queue';
+    let statusText = t('pending');
+    let statusIcon = '⏳';
+    
+    if (item.synced) {
+      statusClass = 'status-synced';
+      statusText = t('approved');
+      statusIcon = '✅';
+    } else if (item.failed) {
+      statusClass = 'status-failed';
+      statusText = t('rejected');
+      statusIcon = '❌';
+    }
+    
+    const driverName = item.driverName || 'Unknown Driver';
+    const messagePreview = item.message ? item.message.substring(0, 30) + (item.message.length > 30 ? '...' : '') : '';
+    
+    return `
+      <div class="queue-item">
+        <div>
+          <div class="item-name">${driverName}</div>
+          <div style="font-size:0.7rem; color:#999;">${messagePreview}</div>
+        </div>
+        <div>
+          <span class="item-status ${statusClass}">${statusIcon} ${statusText}</span>
+          ${!item.synced ? `<button class="btn btn-xs btn-red" onclick="deleteQueueItem('${item.id}')" style="margin-left:6px; padding:2px 8px; font-size:0.6rem;"><i class="fas fa-trash"></i></button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function deleteQueueItem(id) {
+  if (confirm(t('delete_confirm'))) {
+    await offlineQueue.deleteItem(id);
+    await updateQueueList();
+    await offlineQueue.updateBadgeCount();
+    showToast('🗑️ ' + t('deleted'));
+  }
+}
+
+async function syncQueue() {
+  const btn = document.getElementById('syncQueueBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'fr' ? 'Synchronisation...' : 'Syncing...');
+  
+  await offlineQueue.sync();
+  await updateQueueList();
+  await offlineQueue.updateBadgeCount();
+  
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-sync-alt"></i> ' + (currentLang === 'fr' ? 'Synchroniser maintenant' : 'Sync Now');
+}
+
+// ============================================================
+// ===== MAIN APPLICATION =====
+// ============================================================
+
+let currentLang = 'en';
+
+// ===== DARK MODE =====
+window.toggleDarkMode = function() {
+  document.body.classList.toggle('dark-mode');
+  const icon = document.querySelector('.dark-mode-toggle i');
+  if (document.body.classList.contains('dark-mode')) {
+    icon.classList.remove('fa-moon');
+    icon.classList.add('fa-sun');
+  } else {
+    icon.classList.remove('fa-sun');
+    icon.classList.add('fa-moon');
+  }
+};
+
+// ===== LANGUAGE SWITCH =====
+window.switchLanguage = function(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-toggle').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(lang === 'en' ? 'langEn' : 'langFr').classList.add('active');
+  
+  // Translate static content
+  document.querySelectorAll('[data-en][data-fr]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + lang);
+  });
+  
+  // Translate dynamic content
+  translateDynamicElements();
+  
+  // Update offline badge text
+  const offlineBadge = document.getElementById('offlineBadge');
+  const badgeSpans = offlineBadge.querySelectorAll('span:not(.badge-count)');
+  badgeSpans.forEach(span => {
+    const key = span.getAttribute('data-i18n');
+    if (key) {
+      span.textContent = t(key);
+    }
+  });
+};
+
+// ===== PASSWORD TOGGLE =====
+window.togglePassword = function(inputId, button) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  
+  const icon = button.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+};
+
+window.togglePasswordVisibility = function(element) {
+  const inputGroup = element.closest('.input-group');
+  if (!inputGroup) return;
+  
+  const passwordWrapper = inputGroup.querySelector('.password-wrapper');
+  if (!passwordWrapper) return;
+  
+  const input = passwordWrapper.querySelector('input');
+  const toggleBtn = passwordWrapper.querySelector('.password-toggle');
+  
+  if (input && toggleBtn) {
+    const icon = toggleBtn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  }
+};
+
+// ===== TOGGLE SENDER NAME =====
+window.toggleSenderName = function() {
+  const anonymousCheck = document.getElementById('anonymousToggle');
+  const senderNameInput = document.getElementById('senderName');
+  const senderNameGroup = document.getElementById('senderNameGroup');
+  
+  if (anonymousCheck && anonymousCheck.checked) {
+    if (senderNameInput) {
+      senderNameInput.disabled = true;
+      senderNameInput.placeholder = 'You are sending anonymously';
+      senderNameInput.value = '';
+    }
+    if (senderNameGroup) {
+      senderNameGroup.style.opacity = '0.5';
+    }
+  } else {
+    if (senderNameInput) {
+      senderNameInput.disabled = false;
+      senderNameInput.placeholder = 'e.g. Sarah from Bus #5';
+      senderNameInput.value = 'Sarah from Bus #5';
+    }
+    if (senderNameGroup) {
+      senderNameGroup.style.opacity = '1';
+    }
+  }
+};
+
+// ===== ADMIN 5-TAP =====
+let tapCount = 0;
+let tapTimer = null;
+const logo = document.getElementById('logoArea');
+const adminPanel = document.getElementById('adminPanel');
+
+if (logo) {
+  logo.addEventListener('click', function(e) {
+    e.stopPropagation();
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 700);
+    if (tapCount >= 5) {
+      tapCount = 0;
+      if (adminPanel.classList.contains('admin-hidden')) {
+        const pwd = prompt('🔐 Admin password required');
+        if (pwd === 'admin123') {
+          adminPanel.classList.remove('admin-hidden');
+          showToast('🔓 Admin panel unlocked');
+        } else if (pwd !== null) {
+          showToast('❌ Wrong password');
+        }
+      } else {
+        adminPanel.classList.add('admin-hidden');
+        showToast('🔒 Admin panel locked');
+      }
+    }
+  });
+}
+
+// ===== TOGGLE DRIVER DETAIL =====
+window.toggleDetail = function(detailId) {
+  const detail = document.getElementById(detailId);
+  if (!detail) return;
+  
+  document.querySelectorAll('.driver-detail.active').forEach(d => {
+    if (d.id !== detailId) {
+      d.classList.remove('active');
+    }
+  });
+  
+  detail.classList.toggle('active');
+  
+  if (detail.classList.contains('active')) {
+    setTimeout(() => {
+      detail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+};
+
+// ============================================================
+// ===== INIT =====
+// ============================================================
+
+// Initialize Offline Queue
+const offlineQueue = new OfflineQueue();
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate QR codes
+  generateHomeQR();
+  generateDriverQR('https://thankdriver.page/michael-rivera');
+  
+  // Translate dynamic content
+  translateDynamicElements();
+  
+  // Set initial offline badge state
+  setTimeout(() => {
+    offlineQueue.updateBadgeCount();
+  }, 1000);
+  
+  // Show demo driver by default
+  setTimeout(() => {
+    selectDriver('michael-rivera');
+  }, 500);
+});
+</script>
+</body>
+</html>
