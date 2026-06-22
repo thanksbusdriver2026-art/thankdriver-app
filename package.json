@@ -1,24 +1,26 @@
 {
   "name": "thankdriver-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Thank your school bus driver",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "build": "mkdir -p dist && echo '<h1>Thank Driver App</h1><p>Backend coming soon!</p>' > dist/index.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@aws-amplify/backend": "^1.23.0",
-    "@aws-amplify/backend-cli": "^1.8.3",
+    "@aws-amplify/backend": "^1.0.0",
+    "@aws-amplify/backend-cli": "^1.0.0",
     "aws-cdk-lib": "^2.244.0",
-    "constructs": "^10.6.0",
+    "constructs": "^10.0.0",
     "esbuild": "^0.28.1",
     "tsx": "^4.22.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.0.0"
   },
   "dependencies": {
-    "aws-amplify": "^6.18.0"
+    "aws-amplify": "^6.0.0"
   }
 }
