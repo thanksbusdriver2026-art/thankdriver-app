@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "mkdir -p dist && echo '<h1>Thank Driver App</h1><p>Backend coming soon!</p>' > dist/index.html"
+    "build": "mkdir -p dist && cp src/index.html dist/"
   },
   "keywords": [],
   "author": "",
